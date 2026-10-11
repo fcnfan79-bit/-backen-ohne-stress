@@ -1,0 +1,21 @@
+BACKEN OHNE STRESS – Studio 4.3, Produktionsversuch
+
+Was eingebaut wurde:
+- Eine Freigabe für die gesamte OpenRouter-Clipproduktion samt zusätzlicher TTS-Sprecherin.
+- Sprechertext wird aus dem Skriptfeld voice.text oder voiceover übernommen.
+- TTS per OpenRouter /api/v1/audio/speech, MP3 als Projektmedium.
+- Aufträge über OpenRouter /api/v1/videos, Statusabfrage, Download und Zuordnung.
+- Automatischer Start des vorhandenen Browser-MP4-Exports nach vollständigen Clips.
+- Kürzere Szenen können längere modellgestützte Clips nutzen, die bei der Montage gekürzt werden.
+- Bereits angenommene Aufträge werden vor neuem Sammelstart geprüft, um Doppelberechnung zu vermeiden.
+
+EINSCHRÄNKUNGEN:
+- Keine erfolgreiche Live-End-to-End-Prüfung mit echtem OpenRouter-Konto und diesem iPad.
+- OpenRouter muss das gewählte Video- und TTS-Modell für dein Konto freigeben.
+- Der Safari-Browser kann API-Anfragen, Hintergrundverarbeitung oder Videoaufnahme einschränken.
+- Es wird keine automatische freie Musik komponiert. Die Sprecher-MP3 ist die Tonspur; das ist kein Soundtrack.
+- TTS verursacht zusätzliche OpenRouter-Kosten. Die Videopreise sind Schätzungen, keine harte Sperre.
+- KEINE Secrets/API-Schlüssel in öffentliches GitHub hochladen; API-Key nur im Eingabefeld zur Laufzeit.
+- Bestehende Backstudio-Mediendaten liegen lokal auf deinem Gerät. Backup empfohlen.
+
+INSTALLATION: Dateien index.html, manifest.webmanifest, sw.js und beide Icons unverändert ins öffentliche Repo übernehmen; Datei index.html wird ersetzt. Vor echter Produktion Kostenzusage lesen.

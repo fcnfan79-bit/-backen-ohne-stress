@@ -206,7 +206,7 @@ function parseScreenplay(raw){
  return {input:x,shots,sceneLen};
 }
 function applyScreenplay(raw){const {input:x,shots,sceneLen}=parseScreenplay(raw);let p=project();if((p.assets.length||p.jobs.length||p.shots.some(s=>s.clipId))&&!confirm('Das aktuelle Projekt enthält Medien oder Videoaufträge. Das Skript ersetzt die Szenenplanung, vorhandene Medien bleiben erhalten. Fortfahren?'))return;
- p.name=x.title.trim();p.recipe={...p.recipe,title:p.name,ingredients:x.ingredients.join('\n'),steps:x.steps.join('\n'),temp:Number(x.temperature_c)||0,bake:Number(x.bake_minutes)||0,hook:String(x.hook||''),kitchen:[x.kitchen,x.person].filter(Boolean).join('. ')||'Gleiche Küche und dieselbe backende Person in jeder Szene.',format:'9:16',seconds:shots[0].seconds};p.shots=shots;p.screenplay=x;save();refresh();$('scriptStatus').className='banner green';$('scriptStatus').textContent='✓ '+shots.length+' Szenen importiert, '+sceneLen+' s insgesamt. Rezept, Person und Küche übernommen. Noch kein Guthaben verbraucht.';notify('Skript erfolgreich übernommen');}
+ p.name=x.title.trim();p.recipe={...p.recipe,title:p.name,ingredients:x.ingredients.join('\n'),steps:x.steps.join('\n'),temp:Number(x.temperature_c)||0,bake:Number(x.bake_minutes)||0,hook:String(x.hook||''),kitchen:[x.kitchen,x.person].filter(Boolean).join('. ')||'Gleiche Küche und dieselbe backende Person in jeder Szene.',format:'9:16',seconds:shots[0].seconds};p.shots=shots;p.screenplay=x;p.screenplay.voiceover=String(x.voiceover||x.voice?.text||x.narration||'');save();refresh();$('scriptStatus').className='banner green';$('scriptStatus').textContent='✓ '+shots.length+' Szenen importiert, '+sceneLen+' s insgesamt. Rezept, Person und Küche übernommen. Noch kein Guthaben verbraucht.';notify('Skript erfolgreich übernommen');}
 function setupV4(){let target=document.querySelector('[data-page="home"]');if(!target)return;
  $('scriptExample').addEventListener('click',()=>$('allInOne').value=JSON.stringify(screenplayTemplate,null,2));
  $('scriptFormat').addEventListener('click',()=>copy(JSON.stringify(screenplayTemplate,null,2)));
@@ -218,9 +218,29 @@ function setupV4(){let target=document.querySelector('[data-page="home"]');if(!t
 
 /* 4.1: single-script production dashboard. Never automatically spend without a known estimate. */
 function stageVoiceover(){
- const p=project(), x=p.screenplay||{}, t=(typeof x.voiceover==='string'?x.voiceover:(x.voiceover&&x.voiceover.text)||'').trim();
+ const p=project(), x=p.screenplay||{}, t=(typeof x.voiceover==='string'?x.voiceover:(x.voiceover&&x.voiceover.text)||x.voice?.text||'').trim();
  const el=$('autoNarration');if(el)el.value=t || (p.recipe.title.toLowerCase().includes('käse') ? 'Was wird wohl daraus? Erst landen Mehl, Milch und Hefe in der Schüssel. Alles verrühren und den Teig schön aufgehen lassen! Jetzt kommt die Überraschung: In jede Teigkugel wandert ein Stück Mozzarella. Ab in den Ofen, goldbraun backen und mit Knoblauchbutter bestreichen. Und jetzt schau dir diesen Käse an! Wer würde da nicht sofort zugreifen?' : 'Was entsteht aus diesen Zutaten? Wir geben alles Schritt für Schritt zusammen, rühren und formen den Teig. Dann wird gebacken. Schau dir das Ergebnis an! Das musst du probieren!');
 }
+
+// 4.3: optional real narration file via OpenRouter speech endpoint.
+async function createNarrationAsset(p, model, voice){
+ const text=$('autoNarration').value.trim();
+ if(!text)throw Error('Im Skript fehlt der Sprechertext. Keine kostenpflichtige Produktion gestartet.');
+ batchMessage('Sprecherin wird als echte MP3 generiert …');
+ const response=await orFetch('https://openrouter.ai/api/v1/audio/speech',{
+   method:'POST',body:JSON.stringify({model,input:text,voice,response_format:'mp3',speed:1.02})
+ });
+ const audio=await response.blob();
+ if(audio.size<1000||/json|html/.test(audio.type))throw Error('Sprach-API hat keine verwendbare MP3 geliefert.');
+ const id=uuid(),name='Backstudio_Sprecherin_'+Date.now()+'.mp3';
+ const file=new File([audio],name,{type:'audio/mpeg'});
+ await putAsset(id,file,'audio',name);
+ p.assets.push({id,name,kind:'audio',mime:'audio/mpeg',size:file.size});
+ p.settings.musicId=id;p.settings.musicVolume=100;
+ p.screenplay=p.screenplay||{};p.screenplay.voiceover=text;
+ save();return id;
+}
+
 let batchInProgress=false,batchCancelled=false;
 function batchMessage(s){const el=$('batchStatus');if(el)el.textContent=s;}
 function batchCostPlan(){
@@ -232,11 +252,14 @@ function batchCostPlan(){
  if(model.supported_resolutions?.length&&!model.supported_resolutions.includes(res))throw Error('Nicht unterstützte Auflösung.');
  const rate=model.pricing_skus?.['per-video-second-'+res]??model.pricing_skus?.['per-video-second'];
  if(rate==null||!Number.isFinite(Number(rate))||Number(rate)<=0)throw Error('Kein eindeutig kalkulierbarer Sekundenpreis. Aus Kostenschutzgründen ist die automatische Sammelproduktion gesperrt.');
+ const pending=(p.jobs||[]).filter(j=>p.shots.some(x=>x.id===j.shotId&&!x.clipId)&&!['failed','cancelled','canceled','error'].includes(String(j.status).toLowerCase()));
+ if(pending.length)throw Error('Es gibt bereits '+pending.length+' angenommene Aufträge ohne importierten Clip. Bitte zunächst unter Video-Generator den Status prüfen, um doppelte Kosten zu vermeiden.');
  const shots=p.shots.filter(x=>x.enabled!==false&&!x.clipId);
  if(!shots.length)throw Error('Es gibt keine offenen Szenen.');
- for(const x of shots){if(durations.length&&!durations.includes(Number(x.seconds)))throw Error('Szene „'+x.title+'“: '+x.seconds+'s werden nicht unterstützt. Unterstützte Längen: '+durations.join(', ')+'s.');}
- const amount=shots.reduce((n,x)=>n+Number(x.seconds)*Number(rate),0);
- return {model:model.id,res,shots,amount,rate:Number(rate)};
+ for(const x of shots){if(durations.length&&!durations.some(d=>Number(d)>=Number(x.seconds)))throw Error('Szene „'+x.title+'“: '+x.seconds+'s länger als unterstützte Modell-Dauern: '+durations.join(', ')+'s.');}
+ const billedSeconds=x=>durations.length?Math.min(...durations.map(Number).filter(d=>d>=Number(x.seconds))):Number(x.seconds);
+ const amount=shots.reduce((n,x)=>n+billedSeconds(x)*Number(rate),0);
+ return {model:model.id,res,shots,amount,rate:Number(rate),billedSeconds};
 }
 async function batchDownloadJob(p,j){
  const resp=await orFetch('https://openrouter.ai/api/v1/videos/'+encodeURIComponent(j.id)+'/content?index=0');
@@ -253,17 +276,22 @@ async function batchRun(){
  if(!$('permitPaid').checked){fail(Error('Bitte zuerst die OpenRouter-Kostenfreigabe aktivieren.'));switchPage('router');return}
  if(!$('orKey').value.trim()){fail(Error('OpenRouter-Schlüssel fehlt.'));switchPage('router');return}
  if($('referenceMedia')?.value&&!$('referenceUrl')?.value.trim()){fail(Error('Lokales Referenzbild lässt sich noch nicht sicher hochladen.'));return}
- const message=`Kostenpflichtige Sammelproduktion\n\n${plan.shots.length} Szenen, insgesamt ${plan.shots.reduce((a,s)=>a+s.seconds,0)} Sekunden\nModell: ${plan.model}\nSchätzung: USD ${plan.amount.toFixed(2)} (nur kalkulierbare Video-Sekunden; weitere Kosten möglich)\n\nMaximale Summe ist NICHT durch OpenRouter technisch begrenzt. Pro Szene wird ein eigener Auftrag ausgelöst. Nur fortfahren, wenn du auch zusätzliche Gebühren akzeptierst.\n\nJETZT wirklich ${plan.shots.length} Aufträge nacheinander starten?`;
+ const voiceModel=($('ttsModel')?.value||'').trim();
+ const voiceChoice=($('ttsVoice')?.value||'nova').trim();
+ if(!voiceModel){batchMessage('Bitte zuerst ein Sprachmodell auswählen. Keine Kosten.');return}
+ const message=`Kostenpflichtige Sammelproduktion\n\n${plan.shots.length} Szenen, insgesamt ${plan.shots.reduce((a,s)=>a+s.seconds,0)} Sekunden\nModell: ${plan.model}\nGeschätzte Videokosten: USD ${plan.amount.toFixed(2)} (berechnet auf tatsächlich angeforderte Modell-Sekunden)
+Hinzu kommen zusätzliche, derzeit nicht verbindlich kalkulierte Sprachkosten.\n\nDiese Schätzung ist KEIN harter Kostenstopp. Prüfe dein Ausgabenlimit bei OpenRouter. Ohne ausdrückliche Bestätigung wird kein Auftrag gestartet.\n\nJETZT wirklich ${plan.shots.length} Aufträge nacheinander starten?`;
  if(!confirm(message))return;
  batchInProgress=true;batchCancelled=false;$('batchStart').disabled=true;$('batchStop').disabled=false;
  $('permitPaid').checked=false;
  const p=project(), originalId=p.id;
  try{
+  await createNarrationAsset(p,voiceModel,voiceChoice);
   for(let i=0;i<plan.shots.length;i++){
    if(batchCancelled){batchMessage('Abgebrochen. Schon angenommene Aufträge können trotzdem Kosten verursacht haben.');break}
    if(project()?.id!==originalId)throw Error('Projekt während der Produktion gewechselt.');
    const shot=plan.shots[i];batchMessage(`Szene ${i+1}/${plan.shots.length}: Auftrag wird gestartet ...`);
-   const payload={model:plan.model,prompt:promptText(p,shot),duration:Number(shot.seconds),resolution:plan.res,aspect_ratio:'9:16',generate_audio:false};
+   const payload={model:plan.model,prompt:promptText(p,shot),duration:plan.billedSeconds(shot),resolution:plan.res,aspect_ratio:'9:16',generate_audio:false};
    const ref=$('referenceUrl')?.value.trim();if(ref){if(!ref.startsWith('https://'))throw Error('Ungültige HTTPS-Bildadresse.');payload.input_references=[{type:'image_url',image_url:{url:ref}}]}
    const created=await (await orFetch('https://openrouter.ai/api/v1/videos',{method:'POST',body:JSON.stringify(payload)})).json();
    if(!created.id)throw Error('Keine Auftrags-ID zurückgegeben; bitte im OpenRouter-Konto prüfen, bevor du erneut startest.');
@@ -282,13 +310,13 @@ async function batchRun(){
    if(!done)throw Error('Auftrag '+created.id+' läuft noch. Im Video-Generator manuell weiterprüfen; nicht sofort erneut starten.');
    await batchDownloadJob(p,j);renderJobs();
   }
-  if(!batchCancelled){batchMessage('Alle Clips importiert. Für den Export „Videoschnitt“ öffnen; automatische Aufnahme mit Sprecher ist noch nicht verlässlich verfügbar.');notify('Videoclips fertig importiert');}
+  if(!batchCancelled){batchMessage('Alle Clips und Sprecher-MP3 gespeichert. Videoexport läuft jetzt … Safari geöffnet lassen.');switchPage('edit');await montage(true);batchMessage('Automatischer Export abgeschlossen. MP4 wurde zum Download angeboten.');notify('Filmexport abgeschlossen');}
  }catch(e){batchMessage('Gestoppt: '+e.message+' · Bereits gestartete Aufträge im Generator prüfen.');fail(e)}finally{batchInProgress=false;$('batchStart').disabled=false;$('batchStop').disabled=true;save()}
 }
 function setupV41(){
  const root=document.querySelector('[data-page="home"] .sectionIntro');if(!root||$('batchStart'))return;
  const panel=document.createElement('div');panel.className='card';panel.style.cssText='margin:16px 0;border:2px solid #e3c3a4;background:#fffefa';
- panel.innerHTML=`<h2>🎬 Produktion & Sprecherin</h2><p class="help">Dein gesamtes Skript enthält künftig auch <code>"voiceover"</code> (Sprechertext). Die Stimme kann hier kostenlos auf dem iPad angehört werden. <strong>Wichtig: Diese Browserstimme ist noch nicht in der exportierten MP4 enthalten.</strong></p><label for="autoNarration">Sprechertext aus dem importierten Skript</label><textarea id="autoNarration" rows="5" placeholder="Im Skript das Feld voiceover ergänzen ..."></textarea><div class="actions"><button type="button" class="btn light" id="voicePreview">🔊 Stimme anhören</button><button type="button" class="btn light" id="voiceStop">Stopp</button></div><hr><p class="help"><strong>Automatische Clips (Beta):</strong> Startet die Videoszenen nacheinander und importiert sie. Dafür müssen dein gewähltes OpenRouter-Modell, exakte Szenendauern und ein berechenbarer Preis passen. Safari geöffnet lassen. Das ist noch kein fertiger Film mit Ton.</p><div class="actions"><button class="btn" id="batchStart" type="button">🎬 Alle Clips produzieren</button><button class="btn light" id="batchStop" type="button" disabled>⏹ Weitere Aufträge stoppen</button></div><div class="banner" id="batchStatus" role="status">Noch kein Auftrag gestartet. Keine Kosten.</div>`;
+ panel.innerHTML=`<h2>🎬 Produktion & Sprecherin</h2><p class="help">Dein gesamtes Skript enthält künftig auch <code>"voiceover"</code> (Sprechertext). Die Vorschau nutzt noch die iPad-Systemstimme. Für das fertige Video wird eine echte Sprachdatei über OpenRouter erzeugt; dafür wird vorhandenes Guthaben belastet.</p><label for="autoNarration">Sprechertext aus dem importierten Skript</label><textarea id="autoNarration" rows="5" placeholder="Im Skript das Feld voiceover ergänzen ..."></textarea><div class="actions"><button type="button" class="btn light" id="voicePreview">🔊 Stimme anhören</button><button type="button" class="btn light" id="voiceStop">Stopp</button></div><label for="ttsModel">Sprachmodell (über vorhandenes OpenRouter-Guthaben)</label><input id="ttsModel" value="openai/gpt-4o-mini-tts-2025-12-15" autocomplete="off"><label for="ttsVoice">Stimme</label><select id="ttsVoice"><option value="nova">Nova – freundlich weiblich</option><option value="shimmer">Shimmer – weiblich</option></select><p class="help">Die echte MP3 wird beim Produktionsstart generiert. Zusätzliche Sprachkosten werden vor der Freigabe ausdrücklich genannt. Musik wird nicht künstlich dazugekauft; die erzeugte MP3 hat Vorrang.</p><hr><p class="help"><strong>Automatische Clips (Beta):</strong> Erstellt die Sprecher-MP3 und dann alle Szenen, lädt Clips herunter und startet den Browser-MP4-Export. Das iPad muss wach bleiben; bei Problemen werden fertige Medien gespeichert. Wegen Safari-Grenzen noch nicht auf deinem iPad end-to-end bestätigt.</p><div class="actions"><button class="btn" id="batchStart" type="button">🎬 Gesamtes Short mit Sprecherin erstellen</button><button class="btn light" id="batchStop" type="button" disabled>⏹ Weitere Aufträge stoppen</button></div><div class="banner" id="batchStatus" role="status">Noch kein Auftrag gestartet. Keine Kosten.</div>`;
  root.after(panel);
  $('autoNarration').addEventListener('change',()=>{const p=project();p.screenplay=p.screenplay||{};p.screenplay.voiceover=$('autoNarration').value;save()});
  $('voicePreview').addEventListener('click',()=>{if(!('speechSynthesis' in window))return fail(Error('Keine iPad-Sprachausgabe verfügbar'));const t=$('autoNarration').value.trim();if(!t)return notify('Noch kein Sprechertext im Skript');speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='de-DE';u.rate=1.06;u.pitch=1.08;speechSynthesis.speak(u)});
