@@ -31,7 +31,7 @@ Teig kneten und gehen lassen.
 <section data-page="shots"><div class="sectionIntro"><div><h2>2. Szenen für dein Video</h2><p>Jede Szene einzeln bearbeiten, Prompts kopieren und MP4-Clips zuweisen.</p></div><button class="btn light" id="addShot">+ Szene hinzufügen</button></div><div class="statline" id="shotStats"></div><div class="stack" id="shotsList"></div><div class="sectionFooter"><button class="btn light" data-jump="media" type="button">Weiter zur Mediathek →</button></div></section>
 <section data-page="media"><div class="sectionIntro"><div><h2>3. Bilder, Clips &amp; Musik</h2><p>Fotos, Videoclips und Musik bleiben lokal auf deinem iPad, sofern Safari dauerhaften Speicher erlaubt.</p></div><label class="fileButton btn">+ Dateien auswählen<input accept="image/*,video/*,audio/*" id="assetUpload" multiple="" type="file"/></label></div><div class="banner" id="storageNotice">Lokaler Datenspeicher wird geprüft …</div><div class="statline" id="mediaStats"></div><div class="mediaGrid" id="mediaGrid" style="margin-top:15px"></div><div class="sectionFooter"><button class="btn light" data-jump="edit" type="button">Weiter zum Videoschnitt →</button></div></section>
 <section data-page="edit"><div class="sectionIntro"><div><h2>4. Dein YouTube-Short</h2><p>Vorschau direkt auf dem iPad. MP4-Export hängt von der Aufnahmeunterstützung deines Safari ab; wir prüfen das vor dem Start.</p></div></div><div class="grid"><div class="card"><h3>Montage</h3><div class="stack" id="editShots"></div><hr/><div class="field"><label for="overlayTitle">Titel am Anfang</label><input id="overlayTitle" placeholder="Heute backen wir …" type="text"/></div><div class="field"><label for="overlayEnd">Text am Schluss</label><input id="overlayEnd" placeholder="Folgen für mehr Rezepte 🥐" type="text"/></div><div class="field"><label for="musicAsset">Optionale Hintergrundmusik</label><select id="musicAsset"></select></div><div class="field"><label for="musicVolume">Musiklautstärke <span id="musicVolLabel">35 %</span></label><input id="musicVolume" max="100" min="0" style="width:100%" type="range" value="35"/></div><div class="actions"><button class="btn light" id="previewMontage">▶ Vorschau</button><button class="btn" id="exportMontage">⬇ Video exportieren</button></div><p class="hint" id="encoderHelp">MP4-Export wird im Browser geprüft. Wenn dein iPad keinen passenden Codec unterstützt, kannst du Clips weiterhin exportieren und extern schneiden.</p><div class="banner hidden" id="renderMsg" style="margin-top:14px"></div></div><div class="videoStage"><canvas aria-label="Video-Vorschau" height="960" id="previewCanvas" width="540"></canvas><video id="sourceVideo" playsinline="" preload="auto" style="display:none"></video><audio id="sourceMusic" preload="auto" style="display:none"></audio></div></div><div class="sectionFooter"><button class="btn light" data-jump="backup" type="button">Projekt sichern →</button></div></section>
-<section data-page="router"><div class="sectionIntro"><div><h2>OpenRouter – bewusst kostenpflichtig</h2><p>Standardmäßig vollständig ausgeschaltet. Jeder Auftrag muss separat bestätigt werden.</p></div></div><div class="banner error"><strong>⚠ Guthabenschutz aktiv.</strong> Ein kostenpflichtiger Auftrag startet ausschließlich nach eigener Freigabe und nochmaliger Bestätigung. Die direkte API-Nutzung aus Safari kann an CORS scheitern; bitte den Schlüssel niemals in einen öffentlichen Link oder eine ZIP-Sicherung eintragen.</div><div class="grid" style="margin-top:15px"><div class="card"><h3>Videoauftrag</h3><div class="field"><label for="shotToRun">Szene auswählen</label><select id="shotToRun"></select></div><div class="field"><label for="videoModel">OpenRouter-Videomodell</label><input id="videoModel" spellcheck="false" type="text" value="google/veo-3.1"/><p class="hint" id="orModelSpec">Mit „Modelle abfragen“ werden unterstützte Formate und Preise angezeigt.</p><p class="hint">Die Modellkennung muss aktuell und für Video geeignet sein. <a href="https://openrouter.ai/models" rel="noopener" target="_blank">Modelle ansehen</a>.</p></div><div class="field row2"><div><label for="orSeconds">Dauer</label><select id="orSeconds"><option value="5">5 s</option><option selected="" value="8">8 s</option><option value="10">10 s</option></select></div><div><label for="orResolution">Auflösung</label><select id="orResolution"><option value="720p">720p</option><option value="1080p">1080p</option></select></div></div><div class="field"><label for="referenceUrl">Referenzbild (optional)</label><select id="referenceMedia"><option value="">Kein lokales Bild ausgewählt</option></select><p class="hint" id="referenceMediaHint">Bilder aus der Mediathek auswählen und ansehen. Für den API-Auftrag ist derzeit weiterhin eine HTTPS-Adresse erforderlich; lokale Bilder werden nicht öffentlich hochgeladen.</p><img id="referencePreview" alt="Referenzbildvorschau" style="display:none;max-height:170px;max-width:100%;border-radius:12px;object-fit:contain"/><label for="referenceUrl">Öffentliche HTTPS-Bildadresse für die API (optional)</label><input id="referenceUrl" placeholder="https://…/mein-bild.jpg" type="url"/><p class="hint">Bilder aus deiner lokalen Mediathek werden nicht automatisch hochgeladen. Das Referenzbild muss für die Video-API erreichbar und vom gewählten Modell unterstützt sein.</p></div><div class="field"><label for="orPrompt">Prompt für diese Szene</label><textarea id="orPrompt" rows="7"></textarea></div><div class="banner" id="orPricePreview">Kosten noch nicht berechnet. Modellinformationen laden; erst dann können wir einen Preis anzeigen, wenn eine eindeutige Preisangabe verfügbar ist.</div><div class="actions"><button class="btn light" id="copyOrPrompt">Prompt kopieren</button><button class="btn outline" id="loadOrModels">Modelle abfragen</button></div><hr/><div class="field"><label for="orKey">API-Schlüssel (nur für diese Sitzung, nie im Projekt gespeichert)</label><input autocomplete="off" id="orKey" placeholder="sk-or-…" type="password"/></div><div class="costLock"><input id="permitPaid" type="checkbox"/><label for="permitPaid" style="margin:0">Ich entscheide mich ausdrücklich für einen kostenpflichtigen Test mit meinem vorhandenen OpenRouter-Guthaben.</label></div><div class="actions"><button class="btn warn" disabled="" id="runOr">Kostenpflichtiges Video starten</button></div><p class="hint">Direkter Aufruf im iPad-Browser ist möglicherweise durch Browser-Sicherheitsregeln (CORS) blockiert. Keine Hintergrundaufträge, keine automatische Abbuchung durch das Studio.</p></div><div class="card"><h3>Aufträge &amp; Ergebnisse</h3><p class="help">Nach dem Start erhältst du eine Auftrags-ID. Mit „Status prüfen“ kannst du den Fortschritt abfragen und ein fertiges Video in die Mediathek importieren.</p><div class="stack" id="jobsList" style="margin-top:14px"></div></div></div></section>
+<section data-page="router"><div class="sectionIntro"><div><h2>OpenRouter – bewusst kostenpflichtig</h2><p>Standardmäßig vollständig ausgeschaltet. Jeder Auftrag muss separat bestätigt werden.</p></div></div><div class="banner error"><strong>⚠ Guthabenschutz aktiv.</strong> Ein kostenpflichtiger Auftrag startet ausschließlich nach eigener Freigabe und nochmaliger Bestätigung. Die direkte API-Nutzung aus Safari kann an CORS scheitern; bitte den Schlüssel niemals in einen öffentlichen Link oder eine ZIP-Sicherung eintragen.</div><div class="grid" style="margin-top:15px"><div class="card"><h3>Videoauftrag</h3><div class="field"><label for="shotToRun">Szene auswählen</label><select id="shotToRun"></select></div><div class="field"><label for="videoModel">OpenRouter-Videomodell</label><input id="videoModel" spellcheck="false" type="text" value="google/veo-3.1"/><p class="hint" id="orModelSpec">Mit „Modelle abfragen“ werden unterstützte Formate und Preise angezeigt.</p><p class="hint">Die Modellkennung muss aktuell und für Video geeignet sein. <a href="https://openrouter.ai/models" rel="noopener" target="_blank">Modelle ansehen</a>.</p></div><div class="field row2"><div><label for="orSeconds">Dauer</label><select id="orSeconds"><option value="5">5 s</option><option selected="" value="8">8 s</option><option value="10">10 s</option></select></div><div><label for="orResolution">Auflösung</label><select id="orResolution"><option value="720p">720p</option><option value="1080p">1080p</option></select></div></div><div class="field"><label for="referenceUrl">Referenzbild (optional)</label><select id="referenceMedia"><option value="">Kein lokales Bild ausgewählt</option></select><p class="hint" id="referenceMediaHint">Bilder aus der Mediathek auswählen und ansehen. Für den API-Auftrag ist derzeit weiterhin eine HTTPS-Adresse erforderlich; lokale Bilder werden nicht öffentlich hochgeladen.</p><img id="referencePreview" alt="Referenzbildvorschau" style="display:none;max-height:170px;max-width:100%;border-radius:12px;object-fit:contain"/><label for="referenceUrl">Öffentliche HTTPS-Bildadresse für die API (optional)</label><input id="referenceUrl" placeholder="https://…/mein-bild.jpg" type="url"/><p class="hint">Bilder aus deiner lokalen Mediathek werden nicht automatisch hochgeladen. Das Referenzbild muss für die Video-API erreichbar und vom gewählten Modell unterstützt sein.</p></div><div class="field"><label for="orPrompt">Prompt für diese Szene</label><textarea id="orPrompt" rows="7"></textarea></div><div class="banner" id="orPricePreview">Kosten noch nicht berechnet. Modellinformationen laden; erst dann können wir einen Preis anzeigen, wenn eine eindeutige Preisangabe verfügbar ist.</div><div class="actions"><button class="btn light" id="copyOrPrompt">Prompt kopieren</button><button class="btn outline" id="loadOrModels">Modelle abfragen</button></div><hr/><div class="field"><label for="orKey">API-Schlüssel (nur für diese Sitzung, nie im Projekt gespeichert)</label><input autocomplete="off" id="orKey" placeholder="sk-or-…" type="password"/></div><div class="card soft" style="margin:16px 0" id="keyCheckBox"><h3>🔑 Verbindung kostenlos prüfen</h3><p class="help">Prüft nur deinen API-Schlüssel, ohne ein Video zu starten oder Guthaben zu verbrauchen. Eine Schlüssel-Ausgabenbegrenzung ist nicht automatisch dein gesamtes Kontoguthaben.</p><div class="actions"><button class="btn success" type="button" id="checkOrKey">🔑 Verbindung und Schlüssel-Limit prüfen</button><a class="btn light" href="https://openrouter.ai/settings/credits" target="_blank" rel="noopener noreferrer">💰 Kontoguthaben bei OpenRouter</a></div><div id="keyCheckStatus" class="banner" role="status" aria-live="polite">Noch nicht geprüft. Keine Kosten.</div><p class="hint">Das Studio sendet den Schlüssel ausschließlich für diese Anfrage direkt an OpenRouter; bei Safari/CORS-Sperre wird das offen gemeldet. Niemals Schlüssel in GitHub hochladen oder als Screenshot teilen. Für höchste Sicherheit nutze einen getrennten API-Schlüssel mit kleinem Ausgabenlimit.</p></div><div class="costLock"><input id="permitPaid" type="checkbox"/><label for="permitPaid" style="margin:0">Ich entscheide mich ausdrücklich für einen kostenpflichtigen Test mit meinem vorhandenen OpenRouter-Guthaben.</label></div><div class="actions"><button class="btn warn" disabled="" id="runOr">Kostenpflichtiges Video starten</button></div><p class="hint">Direkter Aufruf im iPad-Browser ist möglicherweise durch Browser-Sicherheitsregeln (CORS) blockiert. Keine Hintergrundaufträge, keine automatische Abbuchung durch das Studio.</p></div><div class="card"><h3>Aufträge &amp; Ergebnisse</h3><p class="help">Nach dem Start erhältst du eine Auftrags-ID. Mit „Status prüfen“ kannst du den Fortschritt abfragen und ein fertiges Video in die Mediathek importieren.</p><div class="stack" id="jobsList" style="margin-top:14px"></div></div></div></section>
 <section data-page="backup"><div class="sectionIntro"><div><h2>Sicherungen &amp; Gerätewechsel</h2><p>Ganz ohne kostenpflichtige Cloud. Eine Sicherung kannst du anschließend in Google Drive ablegen.</p></div></div><div class="grid"><div class="card"><h3>Komplette Projektsicherung</h3><p class="help">Eine ZIP enthält Rezept, Storyboard sowie importierte Bilder, Clips und Audio. Bei großen Videos kann eine ZIP auf dem iPad viel Arbeitsspeicher belegen.</p><div class="actions"><button class="btn" id="backupZip">ZIP mit Medien sichern</button><button class="btn light" id="backupJson">Nur Rezept &amp; Shotliste</button></div><p class="hint">Danach in der iPad-App „Dateien“ unter „Auf meinem iPad“ oder „iCloud Drive“ speichern und bei Bedarf zu Google Drive verschieben.</p></div><div class="card"><h3>Projekt wiederherstellen</h3><p class="help">Importiert eine mit dieser iPad-Version erzeugte ZIP oder JSON-Sicherung als neues Projekt. Vorhandene Projekte bleiben erhalten.</p><div class="actions"><label class="fileButton btn light">Sicherung auswählen<input accept=".zip,.json,application/json,application/zip" id="backupImport" type="file"/></label></div><div class="banner" style="margin-top:15px"><strong>Wichtig:</strong> Safari kann lokale Daten bei knappem Gerätespeicher löschen. Regelmäßig exportieren und zusätzlich in Google Drive sichern.</div></div><div class="card"><h3>Projektverwaltung</h3><div class="actions"><button class="btn light" id="duplicateProject">Projekt duplizieren</button><button class="btn warn" id="deleteProject">Projekt löschen</button></div><p class="hint">Alle Daten bleiben auf deinem Gerät. Sie werden nicht automatisch mit anderen Geräten synchronisiert.</p></div><div class="card soft"><h3>Ohne Windows-PC</h3><p class="help">Planung, Mediathek und ZIP-Sicherungen arbeiten direkt auf dem iPad. Der Browserschnitt benötigt unterstützte Safari-Funktionen. Für eine dauerhaft vom Home-Bildschirm aus startbare App ist eine HTTPS-Adresse erforderlich; dafür kann später ein kostenloser statischer Webhost verwendet werden. Kein Cloud-Server ist vorgesehen.</p></div></div></section>
 </div></main></div><div class="toast" id="toast" role="status"></div>
 <script>
@@ -215,8 +215,121 @@ function setupV4(){let target=document.querySelector('[data-page="home"]');if(!t
  $('scriptScenes').addEventListener('click',()=>switchPage('shots'));
  switchPage('home');
 }
+
+/* 4.1: single-script production dashboard. Never automatically spend without a known estimate. */
+function stageVoiceover(){
+ const p=project(), x=p.screenplay||{}, t=(typeof x.voiceover==='string'?x.voiceover:(x.voiceover&&x.voiceover.text)||'').trim();
+ const el=$('autoNarration');if(el)el.value=t || (p.recipe.title.toLowerCase().includes('käse') ? 'Was wird wohl daraus? Erst landen Mehl, Milch und Hefe in der Schüssel. Alles verrühren und den Teig schön aufgehen lassen! Jetzt kommt die Überraschung: In jede Teigkugel wandert ein Stück Mozzarella. Ab in den Ofen, goldbraun backen und mit Knoblauchbutter bestreichen. Und jetzt schau dir diesen Käse an! Wer würde da nicht sofort zugreifen?' : 'Was entsteht aus diesen Zutaten? Wir geben alles Schritt für Schritt zusammen, rühren und formen den Teig. Dann wird gebacken. Schau dir das Ergebnis an! Das musst du probieren!');
+}
+let batchInProgress=false,batchCancelled=false;
+function batchMessage(s){const el=$('batchStatus');if(el)el.textContent=s;}
+function batchCostPlan(){
+ const p=project(), model=orModels.find(m=>m.id===$('videoModel').value.trim());
+ if(!model)throw Error('Videomodell noch nicht geladen. Unter OpenRouter zunächst Modelle abfragen.');
+ if(model.supported_aspect_ratios?.length&&!model.supported_aspect_ratios.includes('9:16'))throw Error('Dieses Modell unterstützt kein 9:16.');
+ const durations=model.supported_durations||[];
+ const res=$('orResolution').value;
+ if(model.supported_resolutions?.length&&!model.supported_resolutions.includes(res))throw Error('Nicht unterstützte Auflösung.');
+ const rate=model.pricing_skus?.['per-video-second-'+res]??model.pricing_skus?.['per-video-second'];
+ if(rate==null||!Number.isFinite(Number(rate))||Number(rate)<=0)throw Error('Kein eindeutig kalkulierbarer Sekundenpreis. Aus Kostenschutzgründen ist die automatische Sammelproduktion gesperrt.');
+ const shots=p.shots.filter(x=>x.enabled!==false&&!x.clipId);
+ if(!shots.length)throw Error('Es gibt keine offenen Szenen.');
+ for(const x of shots){if(durations.length&&!durations.includes(Number(x.seconds)))throw Error('Szene „'+x.title+'“: '+x.seconds+'s werden nicht unterstützt. Unterstützte Längen: '+durations.join(', ')+'s.');}
+ const amount=shots.reduce((n,x)=>n+Number(x.seconds)*Number(rate),0);
+ return {model:model.id,res,shots,amount,rate:Number(rate)};
+}
+async function batchDownloadJob(p,j){
+ const resp=await orFetch('https://openrouter.ai/api/v1/videos/'+encodeURIComponent(j.id)+'/content?index=0');
+ const video=await resp.blob();if(video.size<1000||video.type.includes('json'))throw Error('Keine gültige MP4-Antwort erhalten.');
+ const id=uuid(),name='Backstudio_'+j.shotId.slice(0,7)+'.mp4';
+ const f=new File([video],name,{type:video.type.startsWith('video/')?video.type:'video/mp4'});
+ await putAsset(id,f,'video',name);p.assets.push({id,name,kind:'video',mime:f.type,size:f.size});
+ const shot=p.shots.find(x=>x.id===j.shotId);if(shot)shot.clipId=id;
+ j.status='completed';save();return id;
+}
+async function batchRun(){
+ if(batchInProgress)return;
+ let plan;try{plan=batchCostPlan()}catch(e){fail(e);return}
+ if(!$('permitPaid').checked){fail(Error('Bitte zuerst die OpenRouter-Kostenfreigabe aktivieren.'));switchPage('router');return}
+ if(!$('orKey').value.trim()){fail(Error('OpenRouter-Schlüssel fehlt.'));switchPage('router');return}
+ if($('referenceMedia')?.value&&!$('referenceUrl')?.value.trim()){fail(Error('Lokales Referenzbild lässt sich noch nicht sicher hochladen.'));return}
+ const message=`Kostenpflichtige Sammelproduktion\n\n${plan.shots.length} Szenen, insgesamt ${plan.shots.reduce((a,s)=>a+s.seconds,0)} Sekunden\nModell: ${plan.model}\nSchätzung: USD ${plan.amount.toFixed(2)} (nur kalkulierbare Video-Sekunden; weitere Kosten möglich)\n\nMaximale Summe ist NICHT durch OpenRouter technisch begrenzt. Pro Szene wird ein eigener Auftrag ausgelöst. Nur fortfahren, wenn du auch zusätzliche Gebühren akzeptierst.\n\nJETZT wirklich ${plan.shots.length} Aufträge nacheinander starten?`;
+ if(!confirm(message))return;
+ batchInProgress=true;batchCancelled=false;$('batchStart').disabled=true;$('batchStop').disabled=false;
+ $('permitPaid').checked=false;
+ const p=project(), originalId=p.id;
+ try{
+  for(let i=0;i<plan.shots.length;i++){
+   if(batchCancelled){batchMessage('Abgebrochen. Schon angenommene Aufträge können trotzdem Kosten verursacht haben.');break}
+   if(project()?.id!==originalId)throw Error('Projekt während der Produktion gewechselt.');
+   const shot=plan.shots[i];batchMessage(`Szene ${i+1}/${plan.shots.length}: Auftrag wird gestartet ...`);
+   const payload={model:plan.model,prompt:promptText(p,shot),duration:Number(shot.seconds),resolution:plan.res,aspect_ratio:'9:16',generate_audio:false};
+   const ref=$('referenceUrl')?.value.trim();if(ref){if(!ref.startsWith('https://'))throw Error('Ungültige HTTPS-Bildadresse.');payload.input_references=[{type:'image_url',image_url:{url:ref}}]}
+   const created=await (await orFetch('https://openrouter.ai/api/v1/videos',{method:'POST',body:JSON.stringify(payload)})).json();
+   if(!created.id)throw Error('Keine Auftrags-ID zurückgegeben; bitte im OpenRouter-Konto prüfen, bevor du erneut startest.');
+   const j={id:created.id,title:shot.title,shotId:shot.id,model:plan.model,status:created.status||'pending',startedAt:new Date().toISOString()};
+   p.jobs.unshift(j);save();renderJobs();
+   let done=false;
+   for(let step=0;step<90;step++){
+    if(batchCancelled){batchMessage('Gestoppt. Angenommener Auftrag '+created.id+' läuft möglicherweise weiter.');return}
+    await wait(6000);
+    const d=await (await orFetch('https://openrouter.ai/api/v1/videos/'+encodeURIComponent(created.id))).json();
+    j.status=d.status||j.status;j.cost=d.usage?.cost??j.cost;j.error=d.error||'';save();
+    batchMessage(`Szene ${i+1}/${plan.shots.length}: ${j.status} · ${step+1}. Statusprüfung`);
+    if(['failed','cancelled','canceled','error'].includes(String(j.status).toLowerCase()))throw Error('Videoauftrag '+created.id+' fehlgeschlagen: '+(j.error||j.status));
+    if(['completed','succeeded','success'].includes(String(j.status).toLowerCase())){done=true;break}
+   }
+   if(!done)throw Error('Auftrag '+created.id+' läuft noch. Im Video-Generator manuell weiterprüfen; nicht sofort erneut starten.');
+   await batchDownloadJob(p,j);renderJobs();
+  }
+  if(!batchCancelled){batchMessage('Alle Clips importiert. Für den Export „Videoschnitt“ öffnen; automatische Aufnahme mit Sprecher ist noch nicht verlässlich verfügbar.');notify('Videoclips fertig importiert');}
+ }catch(e){batchMessage('Gestoppt: '+e.message+' · Bereits gestartete Aufträge im Generator prüfen.');fail(e)}finally{batchInProgress=false;$('batchStart').disabled=false;$('batchStop').disabled=true;save()}
+}
+function setupV41(){
+ const root=document.querySelector('[data-page="home"] .sectionIntro');if(!root||$('batchStart'))return;
+ const panel=document.createElement('div');panel.className='card';panel.style.cssText='margin:16px 0;border:2px solid #e3c3a4;background:#fffefa';
+ panel.innerHTML=`<h2>🎬 Produktion & Sprecherin</h2><p class="help">Dein gesamtes Skript enthält künftig auch <code>"voiceover"</code> (Sprechertext). Die Stimme kann hier kostenlos auf dem iPad angehört werden. <strong>Wichtig: Diese Browserstimme ist noch nicht in der exportierten MP4 enthalten.</strong></p><label for="autoNarration">Sprechertext aus dem importierten Skript</label><textarea id="autoNarration" rows="5" placeholder="Im Skript das Feld voiceover ergänzen ..."></textarea><div class="actions"><button type="button" class="btn light" id="voicePreview">🔊 Stimme anhören</button><button type="button" class="btn light" id="voiceStop">Stopp</button></div><hr><p class="help"><strong>Automatische Clips (Beta):</strong> Startet die Videoszenen nacheinander und importiert sie. Dafür müssen dein gewähltes OpenRouter-Modell, exakte Szenendauern und ein berechenbarer Preis passen. Safari geöffnet lassen. Das ist noch kein fertiger Film mit Ton.</p><div class="actions"><button class="btn" id="batchStart" type="button">🎬 Alle Clips produzieren</button><button class="btn light" id="batchStop" type="button" disabled>⏹ Weitere Aufträge stoppen</button></div><div class="banner" id="batchStatus" role="status">Noch kein Auftrag gestartet. Keine Kosten.</div>`;
+ root.after(panel);
+ $('autoNarration').addEventListener('change',()=>{const p=project();p.screenplay=p.screenplay||{};p.screenplay.voiceover=$('autoNarration').value;save()});
+ $('voicePreview').addEventListener('click',()=>{if(!('speechSynthesis' in window))return fail(Error('Keine iPad-Sprachausgabe verfügbar'));const t=$('autoNarration').value.trim();if(!t)return notify('Noch kein Sprechertext im Skript');speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='de-DE';u.rate=1.06;u.pitch=1.08;speechSynthesis.speak(u)});
+ $('voiceStop').addEventListener('click',()=>{if('speechSynthesis' in window)speechSynthesis.cancel()});
+ $('batchStart').addEventListener('click',batchRun);$('batchStop').addEventListener('click',()=>{batchCancelled=true;batchMessage('Stoppe nach aktuellem Status. Schon angenommene Aufträge können Kosten verursachen.')});
+ const priorApply=applyScreenplay;applyScreenplay=function(raw){priorApply(raw);stageVoiceover()};
+ stageVoiceover();
+}
+const priorSetupV4=setupV4;setupV4=function(){priorSetupV4();setupV41()};
+
 const oldSetupV3=setupV3;
 setupV3=function(){oldSetupV3();setupV4()};
+
+
+// API-Schluessel pruefen: OpenRouter GET /api/v1/key, kein Videoauftrag.
+async function checkOpenRouterKeyFree(){
+ const out=document.getElementById('keyCheckStatus');
+ const b=document.getElementById('checkOrKey');
+ if(!out||!b)return;
+ out.className='banner';
+ if(!document.getElementById('orKey').value.trim()){
+  out.className='banner error';out.textContent='Bitte zuerst deinen API-Schlüssel eingeben. Es wurde nichts gesendet.';return;
+ }
+ b.disabled=true;out.textContent='Prüfe Schlüssel – kein Videoauftrag und keine Kosten …';
+ try{
+  const res=await orFetch('https://openrouter.ai/api/v1/key',{method:'GET',cache:'no-store'});
+  const value=await res.json();
+  if(!value||!value.data)throw Error('Unerwartete Antwort von OpenRouter.');
+  const d=value.data;
+  const n=x=>typeof x==='number'&&Number.isFinite(x)?'$'+x.toFixed(2):'unbekannt';
+  let label='✓ Schlüssel gültig. ';
+  label+=(d.limit_remaining==null?'Kein Schlüssel-Ausgabenlimit hinterlegt.':`Verbleibendes Schlüssel-Limit: ${n(d.limit_remaining)}.`);
+  label+=' Bisher über diesen Schlüssel verbraucht: '+n(d.usage)+'.';
+  label+=' Das gesamte Kontoguthaben wird hier nicht angezeigt. Dafür bitte „Kontoguthaben bei OpenRouter“ öffnen.';
+  if(d.limit===null)label+=' ACHTUNG: Kein Ausgabenlimit! Bitte bei OpenRouter ein Limit setzen.';
+  out.className='banner green';out.textContent=label;
+ }catch(e){out.className='banner error';out.textContent='Verbindungsprüfung fehlgeschlagen: '+e.message+' Kein Video gestartet. Bei einer Safari/CORS-Sperre bitte keine kostenpflichtige Produktion versuchen.';}
+ finally{b.disabled=false;}
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>document.getElementById('checkOrKey')?.addEventListener('click',checkOpenRouterKeyFree));
+else document.getElementById('checkOrKey')?.addEventListener('click',checkOpenRouterKeyFree);
 
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
 </script></body></html>
