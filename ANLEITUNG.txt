@@ -1,6 +1,5 @@
-Backstudio 5.0 – echte Stimmen
-1. Vor Update vorhandenes Projekt als ZIP sichern.
-2. Inhalt des Ordners in das GitHub-Repository hochladen.
-3. Seite neu laden. Unter Einfügen > Produktion & Sprecherin gibt es 21 Stimmen, Live-Abfrage, und Echte Stimme testen.
-4. Nur eine kurze, ausdrücklich bestätigte Sprachprobe wird kostenpflichtig erzeugt; keine Videos.
-Hinweis: API-Schlüssel nicht ins öffentliche GitHub hochladen.
+Backstudio 5.1
+Die Dateien in das bestehende GitHub-Pages-Repository im Hauptverzeichnis hochladen.
+WICHTIG: Vor jedem Update über Sicherungen eine ZIP mit Medien erstellen. Das Studio verwendet unveränderte lokale Speicherkennungen; bei gleicher URL und nicht gelöschten Safari-Websitedaten sind vorhandene Projekte/Clips weiterhin vorhanden.
+Neu: Nur Sprecher-MP3 erzeugen (ohne Videokosten), Matilda wird bevorzugt, Auswahl wird gespeichert. Einzelne fehlerhafte Clips über Storyboard → OpenRouter ersetzen, nicht Gesamtes Short erneut erstellen.
+Echte OpenRouter-Sprach- und Videoproduktion verursacht nach Freigabe API-Kosten; auf dem iPad nicht vollständig erneut getestet.
