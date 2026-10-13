@@ -1,5 +1,9 @@
-Backstudio 5.1
-Die Dateien in das bestehende GitHub-Pages-Repository im Hauptverzeichnis hochladen.
-WICHTIG: Vor jedem Update über Sicherungen eine ZIP mit Medien erstellen. Das Studio verwendet unveränderte lokale Speicherkennungen; bei gleicher URL und nicht gelöschten Safari-Websitedaten sind vorhandene Projekte/Clips weiterhin vorhanden.
-Neu: Nur Sprecher-MP3 erzeugen (ohne Videokosten), Matilda wird bevorzugt, Auswahl wird gespeichert. Einzelne fehlerhafte Clips über Storyboard → OpenRouter ersetzen, nicht Gesamtes Short erneut erstellen.
-Echte OpenRouter-Sprach- und Videoproduktion verursacht nach Freigabe API-Kosten; auf dem iPad nicht vollständig erneut getestet.
+Backstudio 5.2 – Sprachfehler behoben
+
+Änderung: Der Parameter speed wird bei Sprachaufträgen nicht mehr gesendet, da Eleven v4 Turbo ihn nicht unterstützt. Dies gilt für Sprecher-MP3 und echte Stimmprobe.
+
+Alle bisherigen Medien und Szenen bleiben im Browser-Speicher derselben Webadresse. Vor dem Update ZIP-Sicherung aufbewahren.
+
+Dateien ins Wurzelverzeichnis des bestehenden GitHub-Repositories hochladen und ersetzen; anschließend Safari neu laden. Keine Videos neu generieren.
+
+Nach dem Update: Matilda auswählen, nur „Nur Sprecher-MP3 erzeugen“ verwenden; nicht „Gesamtes Short“. Nur nach eigener Kostenfreigabe starten.
