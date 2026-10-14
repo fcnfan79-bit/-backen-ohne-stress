@@ -1,1 +1,7 @@
-Backstudio 5.3: Lokale Bilddateien im Bereich OpenRouter direkt auswählen. Die Datei wird pro Szene lokal gespeichert; bei Videostart wird ein komprimiertes JPEG als base64 data URL in input_references an OpenRouter gesendet. Keine öffentliche HTTPS-Bildadresse erforderlich. Achtung: Nicht alle Videomodelle unterstützen Referenzbilder oder data URLs. Erst einen einzigen kostenpflichtigen Test nach Freigabe starten. Vor dem Update ZIP-Sicherung des bestehenden Projekts erstellen. GitHub Pages: alle Dateien in Repo-Wurzel hochladen, Seite im Safari neu laden. Bereits vorhandene Clips und die Sprecherin werden nicht automatisch verändert.
+BACKSTUDIO 5.4 – REFERENZBILDER IM STORYBOARD
+
+Vor dem Update unter Sicherungen eine vollständige ZIP-Sicherung erstellen.
+Die Dateien dieses ZIP-Pakets in das Stammverzeichnis des GitHub-Pages-Repositories hochladen (index.html, sw.js, ...).
+Im Storyboard bei jeder Szene auf „+ Bild vom iPad auswählen“ tippen. Das Bild wird lokal gespeichert, zugeordnet und als Miniatur angezeigt. Für weitere Szenen einfach dasselbe Bild aus dem Auswahlmenü wählen.
+Bisherige Videos, Sprecherin und Szenentexte werden beim Laden nicht bewusst geändert. Achtung: Browser-Origin, Cache und Webapp-Installation können getrennte lokale Speicher verwenden.
+Bei „OpenRouter“ wird das der Szene zugeordnete Bild übernommen. Ob das gewählte Videomodell die Bilddaten akzeptiert und konsistent nutzt, ist NICHT live bestätigt. Nicht kostenpflichtig testen, bevor die Bildvorschau funktioniert.
