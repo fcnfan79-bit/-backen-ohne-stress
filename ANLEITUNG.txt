@@ -1,9 +1,1 @@
-Backstudio 5.2 – Sprachfehler behoben
-
-Änderung: Der Parameter speed wird bei Sprachaufträgen nicht mehr gesendet, da Eleven v4 Turbo ihn nicht unterstützt. Dies gilt für Sprecher-MP3 und echte Stimmprobe.
-
-Alle bisherigen Medien und Szenen bleiben im Browser-Speicher derselben Webadresse. Vor dem Update ZIP-Sicherung aufbewahren.
-
-Dateien ins Wurzelverzeichnis des bestehenden GitHub-Repositories hochladen und ersetzen; anschließend Safari neu laden. Keine Videos neu generieren.
-
-Nach dem Update: Matilda auswählen, nur „Nur Sprecher-MP3 erzeugen“ verwenden; nicht „Gesamtes Short“. Nur nach eigener Kostenfreigabe starten.
+Backstudio 5.3: Lokale Bilddateien im Bereich OpenRouter direkt auswählen. Die Datei wird pro Szene lokal gespeichert; bei Videostart wird ein komprimiertes JPEG als base64 data URL in input_references an OpenRouter gesendet. Keine öffentliche HTTPS-Bildadresse erforderlich. Achtung: Nicht alle Videomodelle unterstützen Referenzbilder oder data URLs. Erst einen einzigen kostenpflichtigen Test nach Freigabe starten. Vor dem Update ZIP-Sicherung des bestehenden Projekts erstellen. GitHub Pages: alle Dateien in Repo-Wurzel hochladen, Seite im Safari neu laden. Bereits vorhandene Clips und die Sprecherin werden nicht automatisch verändert.
